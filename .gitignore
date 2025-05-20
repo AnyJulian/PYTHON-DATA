@@ -1,0 +1,36 @@
+# Environnements virtuels
+.venv/
+env/
+venv/
+ENV/
+__pycache__/
+
+# Fichiers de configuration sensibles
+.env
+
+# Fichiers de logs
+*.log
+
+# Fichiers de cache Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Fichiers générés par des outils
+*.sqlite3
+*.db
+*.DS_Store
+*.egg-info/
+*.coverage
+*.pytest_cache/
+*.mypy_cache/
+*.vscode/
+
+# Fichiers de Jupyter Notebook
+.ipynb_checkpoints/
+
+# Fichiers de déploiement
+*.bak
+*.swp
+*.tmp

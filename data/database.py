@@ -1,14 +1,19 @@
 import psycopg2
 import pandas as pd
+from dotenv import load_dotenv
+import os
+
+# Charger les variables d'environnement depuis le fichier .env
+load_dotenv()
 
 def get_database_connection():
     """Établit une connexion à la base de données."""
     return psycopg2.connect(
-        database="dwh",
-        user="grp5",
-        host="postgresql-6dc219af-oc5eb1476.database.cloud.ovh.net",
-        password="0Z8vfQqR7w3TjcA",
-        port=20184
+        database=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        host=os.getenv("DB_HOST"),
+        password=os.getenv("DB_PASSWORD"),
+        port=os.getenv("DB_PORT")
     )
 
 def fetch_data(query, columns):
