@@ -1,7 +1,7 @@
 from dash import Dash
 import dash_bootstrap_components as dbc
 from data.database import fetch_data
-from data.data_processing import process_blocage_data, process_sales_data, process_stock_data, process_time_series_data
+from data.data_processing import process_blocage_data, process_sales_data, process_stock_data, process_time_series_data, process_sales_daily_data
 from layouts.layout import create_layout
 from callbacks.callbacks import register_callbacks
 from layouts.graphs import create_silo_graph, create_air_fresh_graph
@@ -54,9 +54,20 @@ df_blocage_grouped = process_blocage_data(df_blocage)
 # Options pour la checklist
 checklist_options = [{'label': article, 'value': article} for article in df_grouped['Article']]
 
+# Charger les données des ventes journalières
+daily_sales_query = """
+    SELECT article, quantit, date_cpt
+    FROM raw.ventes
+"""
+daily_sales_columns = ["Article", "Quantité", "Date Comptable"]
+df_daily_sales = fetch_data(daily_sales_query, daily_sales_columns)
+
+# Traiter les données des ventes journalières
+df_sales_daily = process_sales_daily_data(df_daily_sales)
+
 # Initialiser l'application
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
-app.layout = create_layout(checklist_options, df_silo, df_air_fresh, df_stock_grouped, df_blocage_grouped)
+app.layout = create_layout(checklist_options, df_silo, df_air_fresh, df_stock_grouped, df_blocage_grouped, df_sales_daily)
 
 # Enregistrer les callbacks
 register_callbacks(app, df_grouped, df_stock_grouped)

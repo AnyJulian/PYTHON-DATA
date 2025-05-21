@@ -1,4 +1,5 @@
 import plotly.express as px
+import plotly.graph_objects as go
 
 def create_silo_graph(df2):
     """Crée le graphique pour l'évolution des niveaux des silos."""
@@ -52,3 +53,24 @@ def create_blocage_graph(df_blocage):
             '344': 'lightcoral'  # Rouge clair
         }
     )
+
+def create_sales_graph(df_sales_daily):
+    """Crée un graphique des ventes historiques."""
+    fig = go.Figure()
+
+    # Historique des ventes (toutes les dates sauf week-ends et jours fériés)
+    fig.add_trace(go.Scatter(
+        x=df_sales_daily['Date Comptable'],
+        y=df_sales_daily['Quantité'],
+        mode='lines',
+        name='Historique des ventes'
+    ))
+
+    fig.update_layout(
+        title="Graphique des ventes historiques (sans week-ends et jours fériés)",
+        xaxis_title="Date",
+        yaxis_title="Quantité",
+        template="plotly_white"
+    )
+
+    return fig

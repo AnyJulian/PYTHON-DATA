@@ -1,5 +1,6 @@
 import pandas as pd
 from utils.constants import article_mapping
+import holidays
 
 def process_sales_data(df):
     """Nettoie et transforme les données de ventes."""
@@ -52,3 +53,44 @@ def process_blocage_data(df):
     # Grouper par article et mouvement pour obtenir les totaux
     df_grouped = df.groupby(['Article', 'Mvt'], as_index=False).agg({'Quantit': 'sum'})
     return df_grouped
+
+def process_sales_daily_data(df):
+    """Nettoie et transforme les données de ventes."""
+    # Nettoyer la colonne Quantité
+    df['Quantité'] = df['Quantité'].str.strip()
+    df['Quantité'] = pd.to_numeric(df['Quantité'], errors='coerce')
+    df = df.dropna(subset=['Quantité'])
+
+    # Convertir les dates avec le bon format
+    df.loc[:, 'Date Comptable'] = pd.to_datetime(df['Date Comptable'], dayfirst=True, errors='coerce')
+    df = df.dropna(subset=['Date Comptable'])
+
+    # Grouper les données par jour et additionner les quantités
+    df_daily = df.groupby('Date Comptable').agg({'Quantité': 'sum'}).reset_index()
+
+    # Générer une plage complète de dates
+    all_dates = pd.date_range(start=df_daily['Date Comptable'].min(),
+                              end=df_daily['Date Comptable'].max(),
+                              freq='d')
+
+    # Supprimer les week-ends
+    all_dates = all_dates[~all_dates.weekday.isin([5, 6])]
+
+    # Supprimer les jours fériés
+    fr_holidays = holidays.France(years=all_dates.year.unique())
+    
+    # Convertir les jours fériés en datetime64[ns]
+    fr_holidays = pd.to_datetime(list(fr_holidays), errors='coerce')
+
+    # Supprimer les jours fériés
+    all_dates = all_dates[~all_dates.isin(fr_holidays)]
+
+    # Fusionner avec les données existantes pour inclure toutes les dates
+    df_daily = pd.DataFrame({'Date Comptable': all_dates}).merge(
+        df_daily, on='Date Comptable', how='left'
+    )
+
+    # Remplir les quantités manquantes avec 0
+    df_daily['Quantité'] = df_daily['Quantité'].fillna(0)
+
+    return df_daily

@@ -1,8 +1,8 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
-from layouts.graphs import create_silo_graph, create_air_fresh_graph, create_stock_graph, create_blocage_graph
+from layouts.graphs import create_silo_graph, create_air_fresh_graph, create_stock_graph, create_blocage_graph,create_sales_graph
 
-def create_layout(checklist_options, df_silo, df_air_fresh, df_stock, df_blocage):
+def create_layout(checklist_options, df_silo, df_air_fresh, df_stock, df_blocage, df_sales_daily):
     """Crée le layout principal de l'application."""
     return dbc.Container([
         dbc.Row([
@@ -48,5 +48,8 @@ def create_layout(checklist_options, df_silo, df_air_fresh, df_stock, df_blocage
         ]),
         dbc.Row([
             dcc.Graph(figure=create_blocage_graph(df_blocage))  # Graphique 5 : Blocages et déblocages
+        ]),
+        dbc.Row([
+            dcc.Graph(id='sales-graph', figure=create_sales_graph(df_sales_daily))  # Graphique 6 : sales weekly
         ])
     ], fluid=True)
