@@ -1,7 +1,7 @@
 from dash import Dash
 import dash_bootstrap_components as dbc
 from data.database import fetch_data
-from data.data_processing import process_sales_data, process_time_series_data
+from data.data_processing import process_blocage_data, process_sales_data, process_stock_data, process_time_series_data
 from layouts.layout import create_layout
 from callbacks.callbacks import register_callbacks
 from layouts.graphs import create_silo_graph, create_air_fresh_graph
@@ -29,15 +29,37 @@ air_fresh_columns = ["Date", "Air Frais"]
 df_air_fresh = fetch_data(air_fresh_query, air_fresh_columns)
 df_air_fresh = process_time_series_data(df_air_fresh, date_column="Date", numeric_columns=["Air Frais"])
 
+# Charger les données pour les mouvements de stock
+stock_query = """
+    SELECT article, mvt, quantit, uq
+    FROM raw.declaration_production
+"""
+stock_columns = ["Article", "Mvt", "Quantit", "UQ"]
+
+# Charger et traiter les données de stock
+df_stock = fetch_data(stock_query, stock_columns)
+df_stock_grouped = process_stock_data(df_stock)
+
+# Charger les données pour les blocages et déblocages de stock
+blocage_query = """
+    SELECT article, mvt, quantit
+    FROM raw.blocage_deblocage_stocks
+"""
+blocage_columns = ["Article", "Mvt", "Quantit"]
+
+# Charger et traiter les données de blocage/déblocage
+df_blocage = fetch_data(blocage_query, blocage_columns) 
+df_blocage_grouped = process_blocage_data(df_blocage)
+
 # Options pour la checklist
 checklist_options = [{'label': article, 'value': article} for article in df_grouped['Article']]
 
 # Initialiser l'application
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
-app.layout = create_layout(checklist_options, df_silo, df_air_fresh)
+app.layout = create_layout(checklist_options, df_silo, df_air_fresh, df_stock_grouped, df_blocage_grouped)
 
 # Enregistrer les callbacks
-register_callbacks(app, df_grouped)
+register_callbacks(app, df_grouped, df_stock_grouped)
 
 # Lancer l'application
 if __name__ == '__main__':
