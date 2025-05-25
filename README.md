@@ -32,5 +32,6 @@ L’objectif est de fournir un outil interactif pour le suivi de la production, 
 ## Lancement
 
 1. Installer les dépendances
-2. Lancer l’application :
-3. Ouvrir le navigateur à l’adresse indiquée dans la console (généralement `http://127.0.0.1:8050`).
+2. Créer un fichier .env à la racine (suivre l'exemple de env.example.txt)
+3. Lancer l’application
+4. Ouvrir le navigateur à l’adresse indiquée dans la console (généralement `http://127.0.0.1:8050`).
