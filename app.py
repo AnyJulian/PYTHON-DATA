@@ -1,7 +1,7 @@
 from dash import Dash
 import dash_bootstrap_components as dbc
 from data.database import fetch_data
-from data.data_processing import process_blocage_data, process_sales_data, process_stock_data, process_time_series_data, process_sales_daily_data
+from data.data_processing import process_blocage_data, process_sales_data, process_stock_data, process_time_series_data, process_sales_daily_data, process_air_fresh_data, train_air_fresh_model, add_cost_prediction
 from layouts.layout import create_layout
 from callbacks.callbacks import register_callbacks
 from layouts.graphs import create_silo_graph, create_air_fresh_graph
@@ -28,6 +28,15 @@ air_fresh_query = """
 air_fresh_columns = ["Date", "Air Frais"]
 df_air_fresh = fetch_data(air_fresh_query, air_fresh_columns)
 df_air_fresh = process_time_series_data(df_air_fresh, date_column="Date", numeric_columns=["Air Frais"])
+
+# Traiter les données d'air frais
+df_air_fresh = process_air_fresh_data(df_air_fresh)
+
+# Entraîner le modèle de prédiction
+air_fresh_model, X_test, y_test = train_air_fresh_model(df_air_fresh)
+
+# Ajouter la prédiction du coût dans les données d'air frais
+df_air_fresh = add_cost_prediction(df_air_fresh, air_fresh_model)
 
 # Charger les données pour les mouvements de stock
 stock_query = """
@@ -66,11 +75,11 @@ df_daily_sales = fetch_data(daily_sales_query, daily_sales_columns)
 df_sales_daily = process_sales_daily_data(df_daily_sales)
 
 # Initialiser l'application
-app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP], suppress_callback_exceptions=True)
 app.layout = create_layout(checklist_options, df_silo, df_air_fresh, df_stock_grouped, df_blocage_grouped, df_sales_daily)
 
 # Enregistrer les callbacks
-register_callbacks(app, df_grouped, df_stock_grouped)
+register_callbacks(app, df_grouped, df_stock_grouped, df_air_fresh, air_fresh_model)
 
 # Lancer l'application
 if __name__ == '__main__':

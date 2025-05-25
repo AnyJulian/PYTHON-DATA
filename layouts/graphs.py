@@ -74,3 +74,68 @@ def create_sales_graph(df_sales_daily):
     )
 
     return fig
+
+def create_air_fresh_prediction_graph(df, model):
+    """Crée un graphique pour les prédictions de consommation électrique."""
+    # Prédire les coûts en fonction des niveaux d'air frais
+    df['Coût Prédit (€)'] = model.predict(df[['Air Frais']])
+
+    # Créer le graphique
+    fig = go.Figure()
+
+    # Ajouter les données réelles
+    fig.add_trace(go.Scatter(
+        x=df['Air Frais'],
+        y=df['Coût Total (€)'],
+        mode='markers',
+        name='Données Réelles'
+    ))
+
+    # Ajouter les prédictions
+    fig.add_trace(go.Scatter(
+        x=df['Air Frais'],
+        y=df['Coût Prédit (€)'],
+        mode='lines',
+        name='Prédictions'
+    ))
+
+    fig.update_layout(
+        title="Prédictions de Consommation Électrique en Fonction de l'Air Frais",
+        xaxis_title="Air Frais",
+        yaxis_title="Coût Total (€)",
+        template="plotly_white"
+    )
+
+    return fig
+
+def create_air_fresh_graph_with_cost(df):
+    """Crée un graphique pour l'évolution des niveaux d'air frais et du coût prédit."""
+    fig = go.Figure()
+
+    # Ajouter la courbe des niveaux d'air frais
+    fig.add_trace(go.Scatter(
+        x=df['Date'],
+        y=df['Air Frais'],
+        mode='lines',
+        name='Niveaux d\'Air Frais',
+        line=dict(color='blue')
+    ))
+
+    # Ajouter la courbe du coût prédit
+    fig.add_trace(go.Scatter(
+        x=df['Date'],
+        y=df['Coût Prédit (€)'],
+        mode='lines',
+        name='Coût Prédit (€)',
+        line=dict(color='red', dash='dash')
+    ))
+
+    fig.update_layout(
+        title="Évolution des Niveaux d'Air Frais et du Coût Prédit",
+        xaxis_title="Date",
+        yaxis_title="Valeurs",
+        template="plotly_white",
+        legend=dict(x=0, y=1, bgcolor='rgba(255,255,255,0)', bordercolor='rgba(0,0,0,0)')
+    )
+
+    return fig

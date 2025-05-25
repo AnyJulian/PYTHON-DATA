@@ -1,8 +1,8 @@
 from dash.dependencies import Input, Output
 import plotly.express as px
-from layouts.graphs import create_stock_graph
+from layouts.graphs import create_stock_graph, create_air_fresh_prediction_graph
 
-def register_callbacks(app, df_grouped, df_stock_grouped):
+def register_callbacks(app, df_grouped, df_stock_grouped, df_air_fresh, air_fresh_model):
     """Enregistre les callbacks pour l'application Dash."""
     @app.callback(
         Output('article-histogram', 'figure'),
@@ -20,3 +20,12 @@ def register_callbacks(app, df_grouped, df_stock_grouped):
         # Filtrer les données en fonction des unités de quantité sélectionnées
         filtered_df = df_stock_grouped[df_stock_grouped['UQ'].isin(selected_uq)]
         return create_stock_graph(filtered_df)
+    
+    @app.callback(
+        Output('air-fresh-prediction-graph', 'figure'),
+        [Input('air-fresh-slider', 'value')]
+    )
+    def update_air_fresh_prediction_graph(selected_value):
+        # Filtrer les données en fonction de la valeur sélectionnée
+        filtered_df = df_air_fresh[df_air_fresh['Air Frais'] <= selected_value]
+        return create_air_fresh_prediction_graph(filtered_df, air_fresh_model)
